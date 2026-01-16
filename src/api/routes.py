@@ -4,13 +4,14 @@ Clean, well-documented endpoints with Swagger integration.
 """
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from loguru import logger
 import os
 import uuid
 from pathlib import Path
+from datetime import datetime
 
 from src.api.config import settings
 from src.core.rag_engine import HybridRAGEngine
@@ -335,3 +336,161 @@ async def reset_metrics():
     except Exception as e:
         logger.error("Error resetting metrics: {}", e)
         raise HTTPException(status_code=500, detail=f"Error resetting metrics: {str(e)}")
+
+
+@router.get("/system/health")
+async def get_system_health():
+    """
+    Get detailed system health metrics including memory usage and inference speed.
+    """
+    try:
+        import psutil
+        import os
+        
+        # Get process memory
+        process = psutil.Process(os.getpid())
+        process_memory = process.memory_info().rss / 1024 / 1024  # MB
+        
+        # Get system memory
+        system_memory = psutil.virtual_memory()
+        
+        # Get metrics
+        api_metrics = metrics_collector.get_stats()
+        
+        # Calculate inference speed (tokens per second approximation)
+        inference_speed = 0.0
+        if api_metrics.get("query_timing"):
+            avg_query_time = api_metrics["query_timing"]["avg_ms"] / 1000  # seconds
+            # Approximate: assume 50 tokens per query on average
+            if avg_query_time > 0:
+                inference_speed = 50 / avg_query_time  # tokens per second
+        
+        # Get ChromaDB size (approximate)
+        chromadb_size = 0
+        try:
+            db_path = Path(settings.CHROMA_DB_PATH)
+            if db_path.exists():
+                for file_path in db_path.rglob("*"):
+                    if file_path.is_file():
+                        chromadb_size += file_path.stat().st_size
+                chromadb_size = chromadb_size / 1024 / 1024  # MB
+        except Exception:
+            pass
+        
+        return {
+            "status": "healthy",
+            "memory": {
+                "process_mb": round(process_memory, 2),
+                "system_total_gb": round(system_memory.total / 1024 / 1024 / 1024, 2),
+                "system_available_gb": round(system_memory.available / 1024 / 1024 / 1024, 2),
+                "system_used_percent": round(system_memory.percent, 2),
+                "chromadb_size_mb": round(chromadb_size, 2),
+            },
+            "performance": {
+                "inference_speed_tokens_per_sec": round(inference_speed, 2),
+                "avg_query_time_ms": api_metrics.get("query_timing", {}).get("avg_ms", 0),
+                "avg_response_time_ms": api_metrics.get("request_timing", {}).get("avg_ms", 0),
+            },
+            "api_metrics": api_metrics,
+        }
+    except ImportError:
+        # psutil not available, return basic metrics
+        api_metrics = metrics_collector.get_stats()
+        return {
+            "status": "healthy",
+            "memory": {"note": "psutil not installed, install for detailed memory metrics"},
+            "performance": {
+                "avg_query_time_ms": api_metrics.get("query_timing", {}).get("avg_ms", 0),
+                "avg_response_time_ms": api_metrics.get("request_timing", {}).get("avg_ms", 0),
+            },
+            "api_metrics": api_metrics,
+        }
+    except Exception as e:
+        logger.error("Error getting system health: {}", e)
+        raise HTTPException(status_code=500, detail=f"Error getting system health: {str(e)}")
+
+
+@router.get("/documents/graph")
+async def get_document_graph():
+    """
+    Get document relationship graph data.
+    """
+    try:
+        from src.utils.document_graph import DocumentGraphBuilder
+        
+        # Get all documents from ChromaDB
+        collection_info = rag_engine.collection.get()
+        
+        if not collection_info.get("metadatas"):
+            return {"nodes": [], "edges": [], "stats": {}}
+        
+        # Group by document_id
+        documents = {}
+        for i, metadata in enumerate(collection_info["metadatas"]):
+            doc_id = metadata.get("document_id", "unknown")
+            if doc_id not in documents:
+                documents[doc_id] = {
+                    "document_id": doc_id,
+                    "filename": metadata.get("filename", "Unknown"),
+                    "metadata": metadata,
+                    "chunks": [],
+                }
+            documents[doc_id]["chunks"].append(collection_info["documents"][i])
+        
+        # Build graph
+        graph_builder = DocumentGraphBuilder()
+        graph_data = graph_builder.build_relationship_graph(list(documents.values()))
+        
+        return graph_data
+        
+    except Exception as e:
+        logger.error("Error building document graph: {}", e)
+        raise HTTPException(status_code=500, detail=f"Error building document graph: {str(e)}")
+
+
+@router.post("/export/audit-pdf")
+async def export_audit_pdf(
+    query: str,
+    answer: str,
+    citations: List[dict],
+    confidence: float,
+    pii_count: int = 0,
+    iterations: int = 0,
+):
+    """
+    Export audit report as PDF.
+    """
+    try:
+        from src.utils.pdf_exporter import ARESPDFExporter
+        import tempfile
+        from pathlib import Path
+        
+        exporter = ARESPDFExporter()
+        
+        # Create temporary file
+        temp_dir = Path("./exports")
+        temp_dir.mkdir(exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_path = temp_dir / f"ares_audit_{timestamp}.pdf"
+        
+        exporter.export_audit_report(
+            output_path=str(output_path),
+            query=query,
+            answer=answer,
+            citations=citations,
+            confidence=confidence,
+            pii_count=pii_count,
+            metadata={"iterations": iterations},
+        )
+        
+        # Return file path (in production, you'd return the file)
+        return {
+            "status": "success",
+            "file_path": str(output_path),
+            "message": "PDF exported successfully",
+        }
+        
+    except Exception as e:
+        logger.error("Error exporting PDF: {}", e)
+        raise HTTPException(status_code=500, detail=f"Error exporting PDF: {str(e)}")
