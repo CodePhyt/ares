@@ -330,7 +330,13 @@ def export_audit_pdf(query: str, answer: str, citations: List[dict], confidence:
                 }
             )
             if response.status_code == 200:
-                return response.json()
+                # Save PDF file
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                pdf_path = Path("exports") / f"ARES_Audit_{timestamp}.pdf"
+                pdf_path.parent.mkdir(exist_ok=True)
+                with open(pdf_path, "wb") as f:
+                    f.write(response.content)
+                return {"status": "success", "file_path": str(pdf_path)}
     except Exception as e:
         st.error(f"Error exporting PDF: {e}")
         return {}
