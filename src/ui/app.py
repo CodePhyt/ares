@@ -23,7 +23,7 @@ st.set_page_config(
     menu_items={
         'Get Help': None,
         'Report a bug': None,
-        'About': "ARES v1.0.0 - Enterprise AI Command Center"
+        'About': "ARES v1.1.0 - Enterprise AI Command Center"
     }
 )
 
@@ -874,7 +874,7 @@ elif selected == "📄 Export":
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: var(--slate-400); padding: 2rem;">
-    <p><strong>ARES v1.0.0</strong> | Enterprise AI Command Center</p>
+    <p><strong>ARES v1.1.0</strong> | Enterprise AI Command Center</p>
     <p>100% Offline | GDPR-Compliant | Privacy-First | Built for German Enterprise Data Sovereignty</p>
     <p style="margin-top: 1rem; font-size: 0.85rem;">© 2024 ARES Development Team | All Rights Reserved</p>
 </div>

@@ -44,6 +44,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2024-01-20
+
+### Added - Enterprise Features
+- **📊 Analytics Dashboard**: Comprehensive System Health tab with:
+  - Real-time inference speed tracking (tokens/sec)
+  - Memory usage visualization (Process, ChromaDB, System)
+  - Query performance metrics and history
+  - Privacy Shield counter (session-based PII masking statistics)
+  - API metrics dashboard with uptime, error rates, and request timing
+- **📄 Advanced PDF Export**: Professional audit reports with:
+  - ARES watermark on every page
+  - Complete query audit trails
+  - Source citations with page numbers
+  - Color-coded metrics tables
+  - GDPR compliance footer
+  - One-click export from any query result
+- **🗺️ Document Relationship Discovery**: Interactive network visualization:
+  - Keyword-based document relationship mapping
+  - Network graph with Plotly visualization
+  - Network statistics (nodes, edges, density)
+  - Document details table with connection counts
+- **🎨 Premium UI Enhancements**:
+  - Slate & Gold premium dark theme
+  - Dark/Light mode toggle
+  - Custom page title: "ARES | Enterprise AI Command Center"
+  - Professional navigation tabs (Query, Analytics, Discovery, Export)
+  - Smooth animations and transitions
+  - Enterprise branding elements
+- **🐳 Docker Quickstart**: 2-command deployment guide
+- **📚 Enhanced Documentation**:
+  - ENTERPRISE_FEATURES.md - Complete feature documentation
+  - IMPLEMENTATION_SUMMARY.md - Technical implementation details
+  - DEPLOYMENT_CHECKLIST.md - Pre/post-deployment checklist
+  - DOCKER_QUICKSTART.md - Quick deployment guide
+
+### Changed
+- Updated UI theme to premium Slate & Gold color scheme
+- Enhanced Streamlit configuration with new theme colors
+- Improved PDF export handling with proper file download support
+- Added exports directory to .gitignore
+
+### Technical
+- Added new dependencies: plotly, networkx, reportlab, Pillow, psutil, streamlit-aggrid
+- New API endpoints:
+  - `GET /api/v1/system/health` - Detailed system health metrics
+  - `GET /api/v1/documents/graph` - Document relationship graph data
+  - `POST /api/v1/export/audit-pdf` - PDF export endpoint
+- Enhanced metrics collection with system monitoring
+- Improved error handling and user feedback
+
+### Fixed
+- PDF export file handling in UI
+- Memory usage calculation accuracy
+- Graph visualization layout improvements
+
+---
+
 ## [Unreleased]
 
 ### Planned Features
@@ -52,6 +109,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced audit logging and reporting
 - Performance optimizations for large document collections
 - Additional language support
-- Advanced visualization and analytics
 - API rate limiting and throttling
 - WebSocket support for real-time updates

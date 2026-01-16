@@ -22,7 +22,7 @@ logger.add(
 app = FastAPI(
     title="ARES API",
     description="Autonomous Resilient Enterprise Suite - GDPR-compliant AI Command Center",
-    version="1.0.0",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
