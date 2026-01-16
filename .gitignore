@@ -39,6 +39,7 @@ wheels/
 data/
 chroma_db/
 uploads/
+exports/
 *.db
 *.sqlite
 
