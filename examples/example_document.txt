@@ -1,0 +1,27 @@
+ARES - Beispiel Dokument
+========================
+
+Dies ist ein Beispiel-Dokument für die ARES-Plattform.
+
+Kontaktinformationen:
+- Name: Max Mustermann
+- E-Mail: max.mustermann@example.com
+- Telefon: +49 123 456789
+- Adresse: Musterstraße 123, 12345 Berlin, Deutschland
+- IBAN: DE89 3704 0044 0532 0130 00
+
+Geschäftsinformationen:
+Das Unternehmen wurde im Jahr 2020 gegründet und beschäftigt sich mit
+künstlicher Intelligenz und Datenschutz. Wir sind spezialisiert auf
+GDPR-konforme Lösungen für deutsche Unternehmen.
+
+Unsere Dienstleistungen umfassen:
+1. Dokumentenanalyse mit KI
+2. PII-Erkennung und -Maskierung
+3. Hybride Suchfunktionen
+4. Agent-basierte Reasoning-Systeme
+
+Für weitere Informationen kontaktieren Sie bitte unser Team unter
+info@example.com oder besuchen Sie unsere Website.
+
+Vielen Dank für Ihr Interesse an ARES!

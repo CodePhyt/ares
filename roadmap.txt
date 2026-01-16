@@ -1,0 +1,31 @@
+ACT AS A PRINCIPAL AI SOLUTIONS ARCHITECT (GERMAN TECH SPECIALIST).
+**PROJECT:** "ARES" - Autonomous Resilient Enterprise Suite.
+
+**OBJECTIVE:** Build the ultimate, 100% offline, GDPR-compliant AI Command Center. ARES must allow German enterprises to index, search, and analyze sensitive documents with an agentic-reasoning layer, ensuring absolute data sovereignty.
+
+**CORE ARCHITECTURE (CLEAN & MODULAR):**
+1. **Backend:** Python 3.12 with FastAPI (Asynchronous execution).
+2. **Brain:** Ollama Integration (Llama-3-8B & mxbai-embed-large).
+3. **Storage:** ChromaDB for Vector Search + BM25 for Keyword Search (Hybrid Search Engine).
+4. **Privacy Shield (The German Special):** Integrate Microsoft Presidio for automated PII masking of Names, Addresses, IBANs, and Emails in German text. No sensitive data reaches the Vector DB or LLM without being audited.
+5. **Agentic Layer:** Implement a 'Reasoning Agent' that can:
+   - PLAN: Decide if the query needs a document search or direct knowledge.
+   - SEARCH: Execute Hybrid RAG (Vector + Keyword).
+   - AUDIT: Fact-check the answer against the retrieved context before displaying.
+6. **Frontend:** Streamlit with a high-end "Cyber-Enterprise" dark theme. 
+   - Features: Real-time token streaming, Source citations with file names/page numbers, Privacy status indicator.
+
+**FILE STRUCTURE TO GENERATE:**
+- `/src/core/rag_engine.py`: Implementation of Parent-Document-Retriever & Cross-Encoder Re-ranking.
+- `/src/core/agents.py`: Agent logic using LangChain / LangGraph patterns.
+- `/src/security/pii_masker.py`: Class-based German PII detector and anonymizer.
+- `/src/api/routes.py`: Clean FastAPI endpoints with Swagger documentation.
+- `/src/ui/app.py`: Professional Streamlit UI with advanced data visualization.
+- `/tests`: Pytest suite for RAG accuracy and PII masking reliability.
+- `docker-compose.yml`: Production-ready orchestration.
+
+**DOCS (FOR DR. SCHIELE):**
+- `README.md`: Professional English documentation focused on 'Data Sovereignty'.
+- `DSGVO_KONFORMITÄT.md`: Detailed German document explaining the encryption, masking, and local-only processing.
+
+**CODE QUALITY:** Use Type Hints, Pydantic for validation, Loguru for structured logging, and ensure 'Umlaut' support in all text processing. DO NOT write junior-level scripts. Build an ENTERPRISE-GRADE application.

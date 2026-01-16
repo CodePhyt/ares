@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  ares-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ares-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./chroma_db:/app/chroma_db
+      - ./uploads:/app/uploads
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - CHROMA_DB_PATH=/app/chroma_db
+      - LOG_LEVEL=INFO
+      - MAX_UPLOAD_SIZE=100MB
+    depends_on:
+      - ollama
+    networks:
+      - ares-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ares-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - ares-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: ares-streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+    environment:
+      - BACKEND_URL=http://ares-backend:8000
+    depends_on:
+      - ares-backend
+    networks:
+      - ares-network
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+
+networks:
+  ares-network:
+    driver: bridge
