@@ -448,48 +448,51 @@ async def get_document_graph():
         raise HTTPException(status_code=500, detail=f"Error building document graph: {str(e)}")
 
 
+class AuditExportRequest(BaseModel):
+    """Audit export request model."""
+    query: str = Field(..., description="Original query")
+    answer: str = Field(..., description="Generated answer")
+    citations: List[dict] = Field(default_factory=list, description="Source citations")
+    confidence: float = Field(..., description="Confidence score")
+    pii_count: int = Field(0, description="Number of PII entities masked")
+    iterations: int = Field(0, description="Number of reasoning iterations")
+
+
 @router.post("/export/audit-pdf")
-async def export_audit_pdf(
-    query: str,
-    answer: str,
-    citations: List[dict],
-    confidence: float,
-    pii_count: int = 0,
-    iterations: int = 0,
-):
+async def export_audit_pdf(request: AuditExportRequest):
     """
-    Export audit report as PDF.
+    Export audit report as PDF with ARES watermark.
+    Returns the PDF file for download.
     """
     try:
         from src.utils.pdf_exporter import ARESPDFExporter
-        import tempfile
         from pathlib import Path
         
         exporter = ARESPDFExporter()
         
-        # Create temporary file
-        temp_dir = Path("./exports")
-        temp_dir.mkdir(exist_ok=True)
+        # Create exports directory
+        exports_dir = Path("./exports")
+        exports_dir.mkdir(exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_path = temp_dir / f"ares_audit_{timestamp}.pdf"
+        output_path = exports_dir / f"ares_audit_{timestamp}.pdf"
         
         exporter.export_audit_report(
             output_path=str(output_path),
-            query=query,
-            answer=answer,
-            citations=citations,
-            confidence=confidence,
-            pii_count=pii_count,
-            metadata={"iterations": iterations},
+            query=request.query,
+            answer=request.answer,
+            citations=request.citations,
+            confidence=request.confidence,
+            pii_count=request.pii_count,
+            metadata={"iterations": request.iterations},
         )
         
-        # Return file path (in production, you'd return the file)
-        return {
-            "status": "success",
-            "file_path": str(output_path),
-            "message": "PDF exported successfully",
-        }
+        # Return file for download
+        return FileResponse(
+            path=str(output_path),
+            filename=f"ARES_Audit_Report_{timestamp}.pdf",
+            media_type="application/pdf",
+        )
         
     except Exception as e:
         logger.error("Error exporting PDF: {}", e)
