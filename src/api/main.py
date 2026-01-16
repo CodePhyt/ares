@@ -9,7 +9,12 @@ import sys
 
 from src.api.routes import router
 from src.api.config import settings
-from src.api.middleware import RequestLoggingMiddleware, SecurityHeadersMiddleware
+from src.api.middleware import (
+    RequestIDMiddleware,
+    RequestLoggingMiddleware,
+    SecurityHeadersMiddleware,
+)
+from src.api.rate_limit import rate_limit_middleware
 
 # Configure logging
 logger.remove()
@@ -28,6 +33,10 @@ app = FastAPI(
 )
 
 # Middleware (order matters - last added is first executed)
+# Request ID should be first to tag all requests
+app.add_middleware(RequestIDMiddleware)
+# Rate limiting should be early to catch requests
+app.middleware("http")(rate_limit_middleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
 

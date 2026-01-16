@@ -81,6 +81,14 @@ class HybridRAGEngine:
         self.cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
         logger.info("Hybrid RAG Engine initialized")
 
+    @staticmethod
+    def _create_httpx_client() -> httpx.AsyncClient:
+        """Create a reusable HTTP client with connection pooling."""
+        return httpx.AsyncClient(
+            timeout=httpx.Timeout(30.0, connect=10.0),
+            limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
+        )
+    
     def _get_embedding(self, text: str) -> List[float]:
         """Get embedding from Ollama."""
         try:
