@@ -5,8 +5,15 @@ Tests for RAG Engine functionality.
 import pytest
 import tempfile
 import shutil
+import os
 from pathlib import Path
 from src.core.rag_engine import HybridRAGEngine, DocumentChunk
+
+# Skip Ollama-dependent tests in CI if SKIP_OLLAMA_TESTS is set
+pytestmark = pytest.mark.skipif(
+    os.getenv("SKIP_OLLAMA_TESTS", "false").lower() == "true",
+    reason="Ollama tests skipped in CI"
+)
 
 
 class TestHybridRAGEngine:
