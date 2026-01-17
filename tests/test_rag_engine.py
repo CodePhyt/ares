@@ -24,10 +24,12 @@ class TestHybridRAGEngine:
         """Create a RAG engine instance with temporary storage."""
         # Note: This requires Ollama to be running
         # In CI/CD, you might want to mock the embedding function
+        import os
+        ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         return HybridRAGEngine(
             chroma_db_path=temp_db_path,
             collection_name="test_collection",
-            ollama_base_url="http://localhost:11434",
+            ollama_base_url=ollama_url,
             chunk_size=100,  # Smaller for testing
             chunk_overlap=10,
         )
